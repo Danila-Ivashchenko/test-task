@@ -3,8 +3,7 @@ package psql
 import (
 	"fmt"
 
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"github.com/go-pg/pg"
 )
 
 type configer interface {
@@ -36,14 +35,11 @@ func NewPostgresClient(cfg configer) *postgresClient {
 	}
 }
 
-func (cl *postgresClient) GetDb() (*sqlx.DB, error) {
-	psqlInfo := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		cl.user,
-		cl.pass,
-		cl.host,
-		cl.port,
-		cl.db,
-		cl.sslMode,
-	)
-	return sqlx.Open("postgres", psqlInfo)
+func (cl *postgresClient) GetDb() *pg.DB {
+	return pg.Connect(&pg.Options{
+		Addr:     fmt.Sprintf("%s:%s", cl.host, cl.port),
+		User:     cl.user,
+		Password: cl.pass,
+		Database: cl.db,
+	})
 }
