@@ -36,7 +36,7 @@ func (m *MockUserStorage) EXPECT() *MockUserStorageMockRecorder {
 }
 
 // AddUser mocks base method.
-func (m *MockUserStorage) AddUser(arg0 context.Context, arg1 *model.FullUser) error {
+func (m *MockUserStorage) AddUser(arg0 context.Context, arg1 *model.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddUser", arg0, arg1)
 	ret0, _ := ret[0].(error)

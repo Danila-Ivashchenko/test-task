@@ -66,10 +66,10 @@ func (mr *MockEnricherMockRecorder) GetGender(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // GetNationalities mocks base method.
-func (m *MockEnricher) GetNationalities(arg0 context.Context, arg1 string) ([]model.NationalityDTO, error) {
+func (m *MockEnricher) GetNationalities(arg0 context.Context, arg1 string) (*model.NationalitiesDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetNationalities", arg0, arg1)
-	ret0, _ := ret[0].([]model.NationalityDTO)
+	ret0, _ := ret[0].(*model.NationalitiesDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
