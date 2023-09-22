@@ -17,10 +17,14 @@ type AgeDTO struct {
 
 type GenderDTO struct {
 	Gender      string `json:"gender"`
-	Probability string `json:"probability"`
+	Probability float32 `json:"probability"`
 }
 
-type NationalityDTO struct {
+type Nationality struct {
 	CountryId   string  `json:"country_id"`
 	Probability float32 `json:"probability"`
+}
+
+type NationalitiesDTO struct {
+	Country []Nationality `json:"country"`
 }

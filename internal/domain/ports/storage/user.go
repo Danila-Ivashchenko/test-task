@@ -6,6 +6,6 @@ import (
 )
 
 type UserStorage interface {
-	AddUser(context.Context, *model.FullUser) error
+	AddUser(context.Context, *model.User) error
 	GetUsers(context.Context, *model.GetUsersDTO)
 }

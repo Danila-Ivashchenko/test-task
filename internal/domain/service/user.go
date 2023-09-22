@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"go-kafka/internal/domain/errors"
 	"go-kafka/internal/domain/model"
 	"go-kafka/internal/domain/ports/enricher"
@@ -21,12 +22,12 @@ func NewUserStorage(s storage.UserStorage, e enricher.Enricher) *userService {
 	}
 }
 
-func (s userService) AddUser(ctx context.Context, user *model.User) error {
+func (s userService) AddUser(ctx context.Context, user *model.RawUser) error {
 	errCh := make(chan error)
 
 	age := &model.AgeDTO{}
 	gender := &model.GenderDTO{}
-	nationalities := []model.NationalityDTO{}
+	nationalities := &model.NationalitiesDTO{}
 
 	go func() {
 		defer close(errCh)
@@ -34,35 +35,41 @@ func (s userService) AddUser(ctx context.Context, user *model.User) error {
 		wg.Add(3)
 
 		go func() {
+			defer wg.Done()
 			result, err := s.enricher.GetAge(ctx, user.Name)
 			if err != nil {
 				errCh <- err
 				return
 			}
+			fmt.Println(result)
 			age = result
 		}()
 
 		go func() {
+			defer wg.Done()
 			result, err := s.enricher.GetGender(ctx, user.Name)
 			if err != nil {
 				errCh <- err
 				return
 			}
+			fmt.Println(result)
 			gender = result
 		}()
 
 		go func() {
+			defer wg.Done()
 			result, err := s.enricher.GetNationalities(ctx, user.Name)
 			if err != nil {
 				errCh <- err
 				return
 			}
+			fmt.Println(result)
 			nationalities = result
 		}()
 
 		wg.Wait()
-		fullUser := &model.FullUser{
-			User:        *user,
+		fullUser := &model.User{
+			RawUser:        *user,
 			Age:         age.Age,
 			Gender:      gender.Gender,
 			Nationality: extractNationality(nationalities),
@@ -80,17 +87,17 @@ func (s userService) AddUser(ctx context.Context, user *model.User) error {
 
 }
 
-func extractNationality(nts []model.NationalityDTO) string {
-	if len(nts) == 0 {
+func extractNationality(nts *model.NationalitiesDTO) string {
+	if len(nts.Country) == 0 {
 		return ""
 	}
-	maxProb := nts[0].Probability
-	nat := nts[0].CountryId
+	maxProb := nts.Country[0].Probability
+	nat := nts.Country[0].CountryId
 
-	for i := 1; i < len(nts); i++ {
-		if nts[i].Probability > maxProb {
-			maxProb = nts[i].Probability
-			nat = nts[i].CountryId
+	for i := 1; i < len(nts.Country); i++ {
+		if nts.Country[i].Probability > maxProb {
+			maxProb = nts.Country[i].Probability
+			nat = nts.Country[i].CountryId
 		}
 	}
 

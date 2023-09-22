@@ -8,5 +8,5 @@ import (
 type Enricher interface {
 	GetAge(context.Context, string) (*model.AgeDTO, error)
 	GetGender(context.Context, string) (*model.GenderDTO, error)
-	GetNationalities(context.Context, string) ([]model.NationalityDTO, error)
+	GetNationalities(context.Context, string) (*model.NationalitiesDTO, error)
 }
