@@ -30,7 +30,6 @@ func (e enricher) GetAge(ctx context.Context, name string) (*model.AgeDTO, error
 	if err != nil {
 		return nil, err
 	}
-
 	resp, err := e.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -47,6 +46,7 @@ func (e enricher) GetAge(ctx context.Context, name string) (*model.AgeDTO, error
 	}
 	return dto, nil
 }
+
 func (e enricher) GetGender(ctx context.Context, name string) (*model.GenderDTO, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s?name=%s", "https://api.genderize.io/", name), nil)
 	if err != nil {
@@ -69,6 +69,7 @@ func (e enricher) GetGender(ctx context.Context, name string) (*model.GenderDTO,
 	}
 	return dto, nil
 }
+
 func (e enricher) GetNationalities(ctx context.Context, name string) (*model.NationalitiesDTO, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s?name=%s", "https://api.nationalize.io/", name), nil)
 	if err != nil {
