@@ -3,21 +3,34 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
 
 type config struct {
-	postgresUser    string
-	postgresPass    string
-	postgresHost    string
-	postgresPort    string
-	postgresDB      string
-	postgresSSLMode string
-	env             string
-	httpPort        string
-	httpHost        string
-	historyDir      string
+	postgresUser       string
+	postgresPass       string
+	postgresHost       string
+	postgresPort       string
+	postgresDB         string
+	postgresSSLMode    string
+	env                string
+	httpPort           string
+	httpHost           string
+	historyDir         string
+	brokerHost         string
+	brokerPort         string
+	topicToConsume     string
+	topicToProduce     string
+	partitionToConsume int32
+	timeLimit          time.Duration
+	redisHost          string
+	redisPort          string
+	redisDb            int
+	redisPassword      string
+	redisTtl           time.Duration
 }
 
 func (cfg config) GetPostgresUser() string {
@@ -59,6 +72,39 @@ func (cfg config) GetHistoryDir() string {
 	return cfg.historyDir
 }
 
+func (cfg config) GetBrokerAddrs() []string {
+	return []string{
+		cfg.brokerHost + ":" + cfg.brokerPort,
+	}
+}
+func (cfg config) GetTopicToConsume() string {
+	return cfg.topicToConsume
+}
+func (cfg config) GetTopicToProduce() string {
+	return cfg.topicToProduce
+}
+func (cfg config) GetPartitionToConsume() int32 {
+	return cfg.partitionToConsume
+}
+func (cfg config) GetTimeLimit() time.Duration {
+	return cfg.timeLimit
+}
+func (cfg config) GetRedisTtl() time.Duration {
+	return cfg.redisTtl
+}
+func (cfg config) GetRedisPort() string {
+	return cfg.redisPort
+}
+func (cfg config) GetRedisHost() string {
+	return cfg.redisHost
+}
+func (cfg config) GetRedisPassword() string {
+	return cfg.redisPassword
+}
+func (cfg config) GetRedisDB() int {
+	return cfg.redisDb
+}
+
 func LoadEnv(filenames ...string) error {
 	const op = "pkg.config.LoadEnv"
 	err := godotenv.Load(filenames...)
@@ -79,6 +125,11 @@ func GetConfig() *config {
 		postgresSSLMode: "disable",
 		httpHost:        "localhost",
 		historyDir:      "history",
+		timeLimit:       time.Second * 10,
+		redisHost:       "localhost",
+		redisPort:       "6379",
+		redisDb:         0,
+		redisTtl:        time.Hour * 24,
 	}
 
 	user := os.Getenv("POSTGRES_USER")
@@ -90,6 +141,12 @@ func GetConfig() *config {
 	env := os.Getenv("ENV")
 	httpPort := os.Getenv("HTTP_PORT")
 	httpHost := os.Getenv("HTTP_HOST")
+	brokerHost := os.Getenv("BROKER_HOST")
+	brokerPort := os.Getenv("BROKER_PORT")
+	topicToConsume := os.Getenv("TOPIC_TO_CONSUME")
+	topicToProduce := os.Getenv("TOPIC_TO_PRODUCE")
+	partitionToConsume := os.Getenv("PARTITION_TO_CONSUME")
+	timeLimit := os.Getenv("TIME_LIMIT")
 
 	if env != "" {
 		cfg.env = env
@@ -117,6 +174,32 @@ func GetConfig() *config {
 	}
 	if ssl != "" {
 		cfg.postgresSSLMode = ssl
+	}
+	if brokerHost != "" {
+		cfg.brokerHost = brokerHost
+	}
+	if brokerPort != "" {
+		cfg.brokerPort = brokerPort
+	}
+	if topicToConsume != "" {
+		cfg.topicToConsume = topicToConsume
+	}
+	if topicToProduce != "" {
+		cfg.topicToProduce = topicToProduce
+	}
+	if partitionToConsume != "" {
+		val, err := strconv.Atoi(partitionToConsume)
+		if err == nil {
+			cfg.partitionToConsume = int32(val)
+		}
+
+	}
+	if timeLimit != "" {
+		val, err := strconv.Atoi(timeLimit)
+		if err == nil {
+			cfg.timeLimit = time.Second * time.Duration(val)
+		}
+
 	}
 
 	return cfg
